@@ -3,8 +3,7 @@ package dev.sorokin.eventmanager.service;
 import dev.sorokin.eventmanager.dto.LocationDto;
 import dev.sorokin.eventmanager.dto.LocationDtoMapper;
 import dev.sorokin.eventmanager.entity.LocationEntity;
-import dev.sorokin.eventmanager.exception.ConflictException;
-import dev.sorokin.eventmanager.exception.GlobalExceptionHandler;
+import dev.sorokin.eventmanager.exception.NoSuchFoundException;
 import dev.sorokin.eventmanager.model.Location;
 import dev.sorokin.eventmanager.entity.LocationEntityMapper;
 import dev.sorokin.eventmanager.repository.LocationRepository;
@@ -43,7 +42,7 @@ public class LocationService {
 
     public Location findById(Long id) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
-                new ConflictException("Лоакция с id = %s не найдена".formatted(id)));
+                new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
 
         log.info("Был осущетвлен поиск лоакции с id={}", locationEntity.getId());
         return locationEntityMapper.toDomain(locationEntity);
@@ -51,7 +50,7 @@ public class LocationService {
 
     public Location update(Long id, LocationDto locationDto) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
-                new ConflictException("Лоакция с id = %s не найдена".formatted(id)));
+                new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
         Location updateLocation = new Location(
                 locationEntity.getId(),
                 locationDto.name(),
@@ -67,7 +66,7 @@ public class LocationService {
 
     public void delete(Long id) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
-                new ConflictException("Лоакция с id = %s не найдена".formatted(id)));
+                new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
         locationRepository.delete(locationEntity);
 
         log.info("Была удалена локация с id={}", locationEntity.getId());

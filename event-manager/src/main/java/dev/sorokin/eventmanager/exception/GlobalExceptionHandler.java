@@ -34,9 +34,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessageResponse);
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorMessageResponse> handleConflictException(ConflictException e) {
-        String message = "Conflict exception";
+    @ExceptionHandler(NoSuchFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleNoSuchFoundException(NoSuchFoundException e) {
+        String message = "NoSuchFound exception";
 
         ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 message,
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
         );
 
 
-        log.error("Conflict Exception " + e.getCause());
+        log.error("NoSuchFound Exception " + e.getCause());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessageResponse);
     }
