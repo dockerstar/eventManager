@@ -51,17 +51,14 @@ public class LocationService {
     public Location update(Long id, LocationDto locationDto) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
                 new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
-        Location updateLocation = new Location(
-                locationEntity.getId(),
-                locationDto.name(),
-                locationDto.address(),
-                locationEntity.getCapacity(),
-                locationDto.description()
-        );
-        locationRepository.save(locationEntityMapper.toEntity(updateLocation));
+        locationEntity.setName(locationDto.name());
+        locationEntity.setAddress(locationDto.address());
+        locationEntity.setCapacity(locationDto.capacity());
+        locationEntity.setDescription(locationDto.description());
 
         log.info("Была обновлена локация с id={}", locationEntity.getId());
-        return updateLocation;
+        locationRepository.save(locationEntity);
+        return locationEntityMapper.toDomain(locationEntity);
     }
 
     public void delete(Long id) {
