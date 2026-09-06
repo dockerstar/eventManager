@@ -72,4 +72,15 @@ public class UserEntity {
     public Long getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", age=" + age +
+                ", role=" + role +
+                '}';
+    }
 }
