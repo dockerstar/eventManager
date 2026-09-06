@@ -19,6 +19,7 @@ public class UserEntity {
     private Integer age;
 
     @Column(name = "role")
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     public UserEntity() {
