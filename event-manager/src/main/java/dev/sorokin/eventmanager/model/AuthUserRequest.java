@@ -1,7 +1,6 @@
 package dev.sorokin.eventmanager.model;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record AuthUserRequest(
         @NotBlank(message = "Поле login не должно быть пустым")

@@ -2,12 +2,10 @@ package dev.sorokin.eventmanager.security;
 
 import dev.sorokin.eventmanager.entity.UserEntity;
 import dev.sorokin.eventmanager.repository.UserRepository;
-import dev.sorokin.eventmanager.service.UserService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.NoSuchElementException;

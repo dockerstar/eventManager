@@ -1,6 +1,5 @@
 package dev.sorokin.eventmanager.service;
 
-import dev.sorokin.eventmanager.dto.UserDto;
 import dev.sorokin.eventmanager.dto.UserDtoMapper;
 import dev.sorokin.eventmanager.entity.UserEntity;
 import dev.sorokin.eventmanager.entity.UserEntityMapper;
