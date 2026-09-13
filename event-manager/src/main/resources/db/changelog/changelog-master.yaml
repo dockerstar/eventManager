@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changesets/0001-starter-baseline.yaml
   - include:
       file: db/changelog/changesets/0002-location-changeset.sql
+  - include:
+      file: db/changelog/changesets/0003-users-changeset.sql

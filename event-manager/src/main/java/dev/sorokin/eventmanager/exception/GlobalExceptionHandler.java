@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchFoundException.class)
     public ResponseEntity<ErrorMessageResponse> handleNoSuchFoundException(NoSuchFoundException e) {
-        String message = "NoSuchFound exception";
+        String message = "Сущность не найдена";
 
         ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 message,
@@ -48,6 +48,21 @@ public class GlobalExceptionHandler {
         log.error("NoSuchFound Exception " + e.getCause());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessageResponse);
+    }
+
+    @ExceptionHandler(IllegalAccessException.class)
+    public ResponseEntity<ErrorMessageResponse> handleIllegalArgException(IllegalArgumentException e) {
+        String message = "Некорректный запрос";
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
+                message,
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error("Illegal Arg exception " + e.getCause());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessageResponse);
     }
 
     @ExceptionHandler(Exception.class)
