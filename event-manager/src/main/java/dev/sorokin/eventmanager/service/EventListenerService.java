@@ -27,14 +27,16 @@ public class EventListenerService {
                 "user",
                 passwordEncoder.encode("user"),
                 18,
-                UserRole.USER
+                UserRole.USER,
+                null
         );
         UserEntity admin = new UserEntity(
                 null,
                 "admin",
                 passwordEncoder.encode("admin"),
                 18,
-                UserRole.ADMIN
+                UserRole.ADMIN,
+                null
         );
 
         if (!userRepository.existsUserEntityByLogin(user.getLogin())) {

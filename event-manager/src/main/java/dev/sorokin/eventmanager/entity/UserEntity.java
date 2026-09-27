@@ -2,6 +2,9 @@ package dev.sorokin.eventmanager.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -22,15 +25,28 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<EventEntity> eventsList = new ArrayList<>();
+
+
     public UserEntity() {
     }
 
-    public UserEntity(Long id, String login,  String passwordHash, Integer age,UserRole role) {
+    public UserEntity(Long id, String login, String passwordHash, Integer age, UserRole role, List<EventEntity> eventsList) {
         this.id = id;
         this.login = login;
         this.passwordHash = passwordHash;
         this.age = age;
         this.role = role;
+        this.eventsList = eventsList;
+    }
+
+    public List<EventEntity> getEventsList() {
+        return eventsList;
+    }
+
+    public void setEventsList(List<EventEntity> eventsList) {
+        this.eventsList = eventsList;
     }
 
     public UserRole getRole() {

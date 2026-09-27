@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
         log.error("NoSuchFound Exception " + e.getCause());
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessageResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessageResponse);
     }
 
     @ExceptionHandler(IllegalAccessException.class)
@@ -79,5 +79,20 @@ public class GlobalExceptionHandler {
         log.error("Generic exception " + e.getCause());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessageResponse);
+    }
+
+    @ExceptionHandler(NoPermissonToPerfom.class)
+    public ResponseEntity<ErrorMessageResponse> handleNoPermissionException(NoPermissonToPerfom e) {
+        String message = "NoPermission exception";
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
+                message,
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error("NoPermission exception " + e);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessageResponse);
     }
 }

@@ -5,13 +5,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LocationEntityMapper {
+    private final EventEntityMapper eventEntityMapper;
+
+    public LocationEntityMapper(EventEntityMapper eventEntityMapper) {
+        this.eventEntityMapper = eventEntityMapper;
+    }
+
     public LocationEntity toEntity(Location location) {
         return new LocationEntity(
                 location.id(),
                 location.name(),
                 location.address(),
                 location.capacity(),
-                location.description()
+                location.description(),
+                location.eventList().stream()
+                        .map(eventEntityMapper::toEntity)
+                        .toList()
         );
     }
 
@@ -21,7 +30,10 @@ public class LocationEntityMapper {
                 locationEntity.getName(),
                 locationEntity.getAddress(),
                 locationEntity.getCapacity(),
-                locationEntity.getDescription()
+                locationEntity.getDescription(),
+                locationEntity.getEventEntities().stream()
+                        .map(eventEntityMapper::toDomain)
+                        .toList()
         );
     }
 }
