@@ -7,10 +7,12 @@ import dev.sorokin.eventmanager.entity.*;
 import dev.sorokin.eventmanager.exception.NoPermissonToPerfom;
 import dev.sorokin.eventmanager.exception.NoSuchFoundException;
 import dev.sorokin.eventmanager.model.Event;
+import dev.sorokin.eventmanager.model.Location;
 import dev.sorokin.eventmanager.repository.EventRepository;
 import dev.sorokin.eventmanager.repository.LocationRepository;
 import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -86,21 +88,70 @@ public class EventService {
     }
 
     public List<Event> search(EventSearchRequestDto eventSearchRequestDto) {
-        List<EventEntity> eventEntities =
-                eventRepository.search(
-                        eventSearchRequestDto.name(),
-                        eventSearchRequestDto.placesMin(),
-                        eventSearchRequestDto.placesMax(),
-                        OffsetDateTime.parse(eventSearchRequestDto.dateStartAfter()),
-                        OffsetDateTime.parse(eventSearchRequestDto.dateStartBefore()),
-                        eventSearchRequestDto.costMin(),
-                        eventSearchRequestDto.costMax(),
-                        eventSearchRequestDto.durationMin(),
-                        eventSearchRequestDto.durationMax(),
-                        locationRepository.findById(eventSearchRequestDto.locationId()).get(),
-                        EventStatus.valueOf(eventSearchRequestDto.eventStatus())
-                );
-        return eventEntities.stream()
+        Specification<EventEntity> specification = Specification.where(null);
+
+
+        if (eventSearchRequestDto.name()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("name"), eventSearchRequestDto.name()));
+        }
+
+        if (eventSearchRequestDto.durationMin()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("duration"), eventSearchRequestDto.durationMin()));
+        }
+
+        if (eventSearchRequestDto.durationMax()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("duration"), eventSearchRequestDto.durationMax()));
+        }
+
+        if (eventSearchRequestDto.costMin()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("cost"), eventSearchRequestDto.costMin()));
+        }
+
+        if (eventSearchRequestDto.costMax()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("cost"), eventSearchRequestDto.costMax()));
+        }
+
+        if (eventSearchRequestDto.dateStartBefore()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("dateStart"), OffsetDateTime.parse(eventSearchRequestDto.dateStartBefore())));
+        }
+
+        if (eventSearchRequestDto.dateStartAfter()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("dateStart"), OffsetDateTime.parse(eventSearchRequestDto.dateStartAfter())));
+        }
+
+        if (eventSearchRequestDto.eventStatus()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("eventStatus"), EventStatus.valueOf(eventSearchRequestDto.eventStatus())));
+        }
+
+        if (eventSearchRequestDto.locationId()!=null) {
+            LocationEntity locationFound = locationRepository.findById(eventSearchRequestDto.locationId()).orElseThrow(()->
+                    new NoSuchFoundException("Локация с id=%s не найдена".formatted(eventSearchRequestDto.locationId())));
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("location"), locationFound));
+        }
+
+        if (eventSearchRequestDto.placesMin()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("maxPlaces"), eventSearchRequestDto.placesMin()));
+        }
+
+        if (eventSearchRequestDto.placesMax()!=null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("maxPlaces"), eventSearchRequestDto.placesMax()));
+        }
+
+        List<EventEntity> search = eventRepository.findAll(specification);
+
+
+        return search.stream()
                 .map(eventEntityMapper::toDomain)
                 .toList();
     }
