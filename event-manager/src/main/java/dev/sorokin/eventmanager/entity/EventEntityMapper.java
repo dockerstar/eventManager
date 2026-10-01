@@ -26,7 +26,7 @@ public class EventEntityMapper {
                 event.duration(),
                 event.maxPlaces(),
                 event.cost(),
-                null,
+                event.occupiedPlaces(),
                 locationRepository.findById(Long.valueOf(event.locationId())).get(),
                 event.status(),
                 userRepository.findById(event.ownerId()).get()

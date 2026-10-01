@@ -30,7 +30,7 @@ public class EventEntity {
     @Column(name = "occupied_places")
     private Integer occupiedPlaces;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     private LocationEntity location;
 
@@ -38,7 +38,7 @@ public class EventEntity {
     @Enumerated(value = EnumType.STRING)
     private EventStatus eventStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private UserEntity user;
 
