@@ -2,6 +2,9 @@ package dev.sorokin.eventmanager.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "locations")
 public class LocationEntity {
@@ -21,15 +24,19 @@ public class LocationEntity {
     @Column(name = "description")
     private String description;
 
+    @OneToMany(mappedBy = "location")
+    private List<EventEntity> eventEntities = new ArrayList<>();
+
     public LocationEntity() {
     }
 
-    public LocationEntity(Long id, String name, String address, Integer capacity, String description) {
+    public LocationEntity(Long id, String name, String address, Integer capacity, String description, List<EventEntity> eventEntities) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.capacity = capacity;
         this.description = description;
+        this.eventEntities = eventEntities;
     }
 
     public String getName() {
@@ -38,6 +45,14 @@ public class LocationEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<EventEntity> getEventEntities() {
+        return eventEntities;
+    }
+
+    public void setEventEntities(List<EventEntity> eventEntities) {
+        this.eventEntities = eventEntities;
     }
 
     public String getAddress() {

@@ -4,9 +4,7 @@ import dev.sorokin.eventmanager.entity.UserEntity;
 import dev.sorokin.eventmanager.entity.UserRole;
 import dev.sorokin.eventmanager.repository.UserRepository;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ContextResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -27,14 +25,16 @@ public class EventListenerService {
                 "user",
                 passwordEncoder.encode("user"),
                 18,
-                UserRole.USER
+                UserRole.USER,
+                null
         );
         UserEntity admin = new UserEntity(
                 null,
                 "admin",
                 passwordEncoder.encode("admin"),
                 18,
-                UserRole.ADMIN
+                UserRole.ADMIN,
+                null
         );
 
         if (!userRepository.existsUserEntityByLogin(user.getLogin())) {

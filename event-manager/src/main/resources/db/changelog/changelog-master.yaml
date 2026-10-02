@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/changesets/0002-location-changeset.sql
   - include:
       file: db/changelog/changesets/0003-users-changeset.sql
+  - include:
+      file: db/changelog/changesets/0004-event-changeset.sql
+  - include:
+      file: db/changelog/changesets/0005-user-register-changeset.sql

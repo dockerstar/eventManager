@@ -3,6 +3,8 @@ package dev.sorokin.eventmanager.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 public record LocationDto(
         @NotBlank(message = "Поле name не должно быть пустым")
         String name,
@@ -10,6 +12,7 @@ public record LocationDto(
         String address,
         @NotNull(message = "Поле capacity не должно быть пустым")
         Integer capacity,
-        String description
+        String description,
+        List<EventCreateRequestDto> eventList
 ) {
 }

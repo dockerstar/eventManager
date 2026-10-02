@@ -9,3 +9,4 @@ create table if not exists locations (
     description varchar(255)
 );
 --rollback drop table if exists locations;
+

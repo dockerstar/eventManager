@@ -3,8 +3,15 @@ package dev.sorokin.eventmanager.dto;
 import dev.sorokin.eventmanager.model.Location;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class LocationDtoMapper {
+    private final EventDtoMapper eventDtoMapper;
+
+    public LocationDtoMapper(EventDtoMapper eventDtoMapper) {
+        this.eventDtoMapper = eventDtoMapper;
+    }
 
     public Location toDomain(LocationDto locationDto) {
         return new Location(
@@ -12,7 +19,8 @@ public class LocationDtoMapper {
                 locationDto.name(),
                 locationDto.address(),
                 locationDto.capacity(),
-                locationDto.description()
+                locationDto.description(),
+                List.of()
         );
     }
 
@@ -21,7 +29,10 @@ public class LocationDtoMapper {
                 location.name(),
                 location.address(),
                 location.capacity(),
-                location.description()
+                location.description(),
+                location.eventList().stream()
+                        .map(eventDtoMapper::toDto)
+                        .toList()
         );
     }
 }
