@@ -37,8 +37,11 @@ public class EventService {
     }
 
     public Event save(EventCreateRequestDto eventCreateRequestDto) {
-        if(!locationRepository.existsById(eventCreateRequestDto.locationId()))
-                throw new NoSuchFoundException("Локация с id=%s не найдена".formatted(eventCreateRequestDto.locationId()));
+        LocationEntity location = locationRepository.findById(eventCreateRequestDto.locationId()).orElseThrow(()->
+                new NoSuchFoundException("Локация с id=%s не найдена".formatted(eventCreateRequestDto.locationId())));
+        if(eventCreateRequestDto.maxPlaces()>location.getCapacity())
+            throw new IllegalArgumentException("Количество мест у Event (%s) не может быть больше чем у локации (%s)"
+                    .formatted(eventCreateRequestDto.maxPlaces(), location.getCapacity()));
         Event eventCreated = eventDtoMapper.toDomain(eventCreateRequestDto);
         log.info("info log created domain: event = {}", eventCreated);
         EventEntity eventEntity = eventRepository.save(eventEntityMapper.toEntity(eventCreated));
@@ -65,11 +68,15 @@ public class EventService {
         EventEntity eventEntity = eventRepository.findById(id).orElseThrow(
                 ()-> new NoSuchFoundException("Событие с id=%s не найдено".formatted(id))
         );
+
         if (!Objects.equals(eventEntity.getUser().getId(), user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN))
             throw new NoPermissonToPerfom("У пользователя с id=%s нет прав на выполнения".formatted(user.getId()));
         LocationEntity locationEntity = locationRepository.findById(eventUpdateDto.locationId()).orElseThrow(
                 ()-> new NoSuchFoundException("Локация с id=%s не найдена".formatted(eventUpdateDto.locationId()))
         );
+        if(eventUpdateDto.maxPlaces()>locationEntity.getCapacity())
+            throw new IllegalArgumentException("Количество мест у Event (%s) не может быть больше чем у локации (%s)"
+                    .formatted(eventUpdateDto.maxPlaces(), locationEntity.getCapacity()));
         if (eventUpdateDto.maxPlaces()<eventEntity.getOccupiedPlaces())
             throw new IllegalArgumentException("Количество максимальных мест не может быть меньше уже забронированных");
         eventEntity.setMaxPlaces(eventUpdateDto.maxPlaces());

@@ -10,6 +10,7 @@ import dev.sorokin.eventmanager.repository.LocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class LocationService {
         return location;
     }
 
+    @Transactional(readOnly = true)
     public List<Location> findAll() {
         return locationRepository.findAll().stream()
                 .map(locationEntityMapper::toDomain)
