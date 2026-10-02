@@ -37,9 +37,10 @@ public class EventService {
     public Event save(EventCreateRequestDto eventCreateRequestDto) {
         LocationEntity location = locationRepository.findById(eventCreateRequestDto.locationId()).orElseThrow(()->
                 new NoSuchFoundException("Локация с id=%s не найдена".formatted(eventCreateRequestDto.locationId())));
-        if(eventCreateRequestDto.maxPlaces()>location.getCapacity())
+        if(eventCreateRequestDto.maxPlaces()>location.getCapacity()) {
             throw new IllegalArgumentException("Количество мест у Event (%s) не может быть больше чем у локации (%s)"
                     .formatted(eventCreateRequestDto.maxPlaces(), location.getCapacity()));
+        }
         Event eventCreated = eventDtoMapper.toDomain(eventCreateRequestDto);
         log.info("info log created domain: event = {}", eventCreated);
         EventEntity eventEntity = eventRepository.save(eventEntityMapper.toEntity(eventCreated));
