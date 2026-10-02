@@ -1,6 +1,5 @@
 package dev.sorokin.eventmanager.entity;
 
-import dev.sorokin.eventmanager.dto.EventDtoMapper;
 import dev.sorokin.eventmanager.model.User;
 import org.springframework.stereotype.Component;
 

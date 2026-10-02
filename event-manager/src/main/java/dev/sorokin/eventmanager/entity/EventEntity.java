@@ -3,7 +3,6 @@ package dev.sorokin.eventmanager.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "events")
@@ -16,7 +15,7 @@ public class EventEntity {
     private String name;
 
     @Column(name = "date_start", nullable = false)
-    private OffsetDateTime dateStart;
+    private LocalDateTime dateStart;
 
     @Column(name = "duration", nullable = false)
     private Integer duration;
@@ -46,7 +45,7 @@ public class EventEntity {
     public EventEntity() {
     }
 
-    public EventEntity(Long id, String name, OffsetDateTime dateStart, Integer duration, Integer maxPlaces, Integer cost, Integer occupiedPlaces, LocationEntity location, EventStatus eventStatus, UserEntity user) {
+    public EventEntity(Long id, String name, LocalDateTime dateStart, Integer duration, Integer maxPlaces, Integer cost, Integer occupiedPlaces, LocationEntity location, EventStatus eventStatus, UserEntity user) {
         this.id = id;
         this.name = name;
         this.dateStart = dateStart;
@@ -83,11 +82,11 @@ public class EventEntity {
         this.name = name;
     }
 
-    public OffsetDateTime getDateStart() {
+    public LocalDateTime getDateStart() {
         return dateStart;
     }
 
-    public void setDateStart(OffsetDateTime dateStart) {
+    public void setDateStart(LocalDateTime dateStart) {
         this.dateStart = dateStart;
     }
 

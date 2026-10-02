@@ -1,6 +1,5 @@
 package dev.sorokin.eventmanager.model;
 
-import dev.sorokin.eventmanager.entity.EventEntity;
 import dev.sorokin.eventmanager.entity.UserRole;
 
 import java.util.List;

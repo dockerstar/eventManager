@@ -7,7 +7,6 @@ import dev.sorokin.eventmanager.entity.*;
 import dev.sorokin.eventmanager.exception.NoPermissonToPerfom;
 import dev.sorokin.eventmanager.exception.NoSuchFoundException;
 import dev.sorokin.eventmanager.model.Event;
-import dev.sorokin.eventmanager.model.Location;
 import dev.sorokin.eventmanager.repository.EventRepository;
 import dev.sorokin.eventmanager.repository.LocationRepository;
 import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
@@ -16,7 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,7 +59,10 @@ public class EventService {
         );
         if (!Objects.equals(eventEntity.getUser().getId(), user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN))
             throw new NoPermissonToPerfom("У пользователя с id=%s нет прав на выполнения".formatted(user.getId()));
-        eventRepository.delete(eventEntity);
+        if (eventEntity.getEventStatus()!=EventStatus.WAIT_START)
+            throw new IllegalArgumentException("Можно удалить только те события, которые не начались");
+        eventEntity.setEventStatus(EventStatus.CANCELLED);
+        eventRepository.save(eventEntity);
     }
 
     public Event update(Long id, EventCreateRequestDto eventUpdateDto, UserEntity user) {
@@ -84,7 +85,7 @@ public class EventService {
         eventEntity.setName(eventUpdateDto.name());
         eventEntity.setCost(eventUpdateDto.cost());
         eventEntity.setDuration(eventUpdateDto.duration());
-        eventEntity.setDateStart(OffsetDateTime.parse(eventUpdateDto.date()));
+        eventEntity.setDateStart(LocalDateTime.parse(eventUpdateDto.date()));
         EventEntity eventUpdated = eventRepository.save(eventEntity);
         return eventEntityMapper.toDomain(eventUpdated);
     }
@@ -125,12 +126,12 @@ public class EventService {
 
         if (eventSearchRequestDto.dateStartBefore()!=null) {
             specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.lessThanOrEqualTo(root.get("dateStart"), OffsetDateTime.parse(eventSearchRequestDto.dateStartBefore())));
+                    criteriaBuilder.lessThanOrEqualTo(root.get("dateStart"), LocalDateTime.parse(eventSearchRequestDto.dateStartBefore())));
         }
 
         if (eventSearchRequestDto.dateStartAfter()!=null) {
             specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("dateStart"), OffsetDateTime.parse(eventSearchRequestDto.dateStartAfter())));
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("dateStart"), LocalDateTime.parse(eventSearchRequestDto.dateStartAfter())));
         }
 
         if (eventSearchRequestDto.eventStatus()!=null) {

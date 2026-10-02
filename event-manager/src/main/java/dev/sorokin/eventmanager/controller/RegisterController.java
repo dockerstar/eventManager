@@ -2,9 +2,7 @@ package dev.sorokin.eventmanager.controller;
 
 import dev.sorokin.eventmanager.dto.EventDtoMapper;
 import dev.sorokin.eventmanager.dto.EventResponseDto;
-import dev.sorokin.eventmanager.entity.EventEntity;
 import dev.sorokin.eventmanager.entity.UserEntity;
-import dev.sorokin.eventmanager.entity.UserRegisterEventEntity;
 import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
 import dev.sorokin.eventmanager.service.RegisterService;
 import org.springframework.http.ResponseEntity;

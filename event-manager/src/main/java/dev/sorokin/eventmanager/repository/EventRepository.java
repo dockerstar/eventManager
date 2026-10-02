@@ -20,7 +20,7 @@ import java.util.List;
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity, Long>, JpaSpecificationExecutor<EventEntity> {
     @Query("""
-        select distinct e from EventEntity e 
+        select e from EventEntity e 
                 left join fetch e.location l
                 left join fetch e.user u
                         where u = :user
@@ -32,22 +32,26 @@ public interface EventRepository extends JpaRepository<EventEntity, Long>, JpaSp
     @Modifying
     @Query(value = """
             update events
-                    set event_status = 'STARTED'
-                    where event_status = 'WAIT_START'
-                                and date_start::timestamp <= :dateNow
+                    set event_status = :newStatus
+                    where event_status = :curStatus
+                                and date_start <= :dateNow
             """, nativeQuery = true)
     int updateEventStatusByDateStart(
+            @Param("newStatus") String newStatus,
+            @Param("curStatus") String curStatus,
             @Param("dateNow") Timestamp dateTime
     );
 
     @Modifying
     @Query(value = """
-            update events e
-                set event_status = 'FINISHED'
-                where event_status = 'STARTED'
-                and (date_start + make_interval(mins := duration))::timestamp <= :dateEnd
-           """, nativeQuery = true)
+             update events e
+                    set event_status = :newStatus
+                    where event_status = :curStatus
+                        and (date_start + make_interval(mins := duration)) <= :dateEnd
+            """, nativeQuery = true)
     int updateEventStatusByDateEnd(
+            @Param("newStatus") String newStatus,
+            @Param("curStatus") String curStatus,
             @Param("dateEnd") Timestamp dateTime
     );
 }

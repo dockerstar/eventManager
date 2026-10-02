@@ -6,7 +6,6 @@ import dev.sorokin.eventmanager.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Component
 public class EventEntityMapper {
@@ -22,7 +21,7 @@ public class EventEntityMapper {
         return new EventEntity(
                 event.id(),
                 event.name(),
-                OffsetDateTime.parse(event.dateTime()),
+                LocalDateTime.parse(event.dateTime()),
                 event.duration(),
                 event.maxPlaces(),
                 event.cost(),

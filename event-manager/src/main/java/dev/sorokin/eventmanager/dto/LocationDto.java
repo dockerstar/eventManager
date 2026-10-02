@@ -2,7 +2,6 @@ package dev.sorokin.eventmanager.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 
 import java.util.List;
 

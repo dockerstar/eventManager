@@ -1,10 +1,8 @@
 package dev.sorokin.eventmanager.dto;
 
 import dev.sorokin.eventmanager.entity.EventStatus;
-import dev.sorokin.eventmanager.exception.NoSuchFoundException;
 import dev.sorokin.eventmanager.model.Event;
 import dev.sorokin.eventmanager.repository.LocationRepository;
-import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
 import org.springframework.stereotype.Component;
 
 @Component

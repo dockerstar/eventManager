@@ -18,4 +18,9 @@ create table if not exists events(
 --changeset dima:2
 alter table events
 alter column date_start type timestamp with time zone;
---rollback drop
+--rollback alter table events alter column date_start type date;
+
+--changeset dima:3
+alter table events
+alter column date_start type timestamp without time zone;
+--rollback alter table events alter column date_start type date;
