@@ -27,6 +27,21 @@ public class EventDtoMapper {
         );
     }
 
+    public Event toDomain(EventUpdateDto eventUpdateDto) {
+        return new Event(
+                null,
+                eventUpdateDto.name(),
+                eventUpdateDto.maxPlaces(),
+                eventUpdateDto.date(),
+                eventUpdateDto.cost(),
+                eventUpdateDto.duration(),
+                eventUpdateDto.locationId(),
+                EventStatus.WAIT_START,
+                eventUpdateDto.ownerId(),
+                0
+        );
+    }
+
     public EventCreateRequestDto toDto(Event event) {
         return new EventCreateRequestDto(
                 event.dateTime(),
