@@ -78,7 +78,37 @@ public class EventService {
             throw new NoPermissonToPerfom("У пользователя с id=%s нет прав на выполнения".formatted(user.getId()));
         if (eventEntity.getEventStatus() != EventStatus.WAIT_START)
             throw new IllegalArgumentException("Можно удалить только те события, которые не начались");
+        List<ChangesField> changesFields = new ArrayList<>();
+        changesFields.add(
+                new ChangesField(
+                        "EventStatus",
+                        eventEntity.getEventStatus().toString(),
+                        EventStatus.CANCELLED.toString()
+                )
+        );
         eventEntity.setEventStatus(EventStatus.CANCELLED);
+
+        EventPayload eventPayload = new EventPayload(
+                UUID.randomUUID(),
+                EventType.CANCELLED,
+                eventEntity.getId(),
+                LocalDateTime.now(),
+                eventEntity.getUser().getId(),
+                user.getId(),
+                register.findAllSubscribersInEvent(eventEntity.getId()),
+                changesFields
+        );
+
+        CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
+        future.whenComplete((result, exception) ->
+        {
+            if (exception != null) {
+                log.error("Failed sent to message: {}", exception.getMessage());
+            } else {
+                log.info("Message sent successfully: {}", eventPayload);
+            }
+        });
+
         eventRepository.save(eventEntity);
     }
 
