@@ -32,7 +32,7 @@ public class NotificationPayloadService {
                         eventPayload.getMessageId(),
                         eventPayload.getOccurredAt());
         if (notificationEventPayloads!=null) {
-            throw new RuntimeException("Payloads been received: %s".formatted(notificationEventPayloads.getMessageId()));
+            throw new IllegalArgumentException("Payloads been received: %s".formatted(notificationEventPayloads.getMessageId()));
         }
 
         NotificationEventPayloads eventPayloadsDomain = mapper.toDomain(eventPayload);

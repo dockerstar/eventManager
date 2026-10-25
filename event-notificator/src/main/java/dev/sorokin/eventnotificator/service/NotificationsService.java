@@ -1,6 +1,5 @@
 package dev.sorokin.eventnotificator.service;
 
-import dev.sorokin.eventcommon.kafka.EventPayload;
 import dev.sorokin.eventnotificator.entity.NotificationsEntity;
 import dev.sorokin.eventnotificator.entity.NotificationsEntityMapper;
 import dev.sorokin.eventnotificator.model.Notifications;

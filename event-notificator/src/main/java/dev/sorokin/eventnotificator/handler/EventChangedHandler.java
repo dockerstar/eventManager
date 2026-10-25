@@ -1,7 +1,6 @@
 package dev.sorokin.eventnotificator.handler;
 
 import dev.sorokin.eventcommon.kafka.EventPayload;
-import dev.sorokin.eventnotificator.entity.NotificationEventPayloadsEntity;
 import dev.sorokin.eventnotificator.model.NotificationEventPayloads;
 import dev.sorokin.eventnotificator.service.NotificationPayloadService;
 import lombok.extern.slf4j.Slf4j;
