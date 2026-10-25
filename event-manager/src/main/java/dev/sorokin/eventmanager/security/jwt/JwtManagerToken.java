@@ -1,5 +1,6 @@
 package dev.sorokin.eventmanager.security.jwt;
 
+import dev.sorokin.eventmanager.entity.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +21,11 @@ public class JwtManagerToken {
         EXPIRATION_TIME = expirationTime;
     }
 
-    public String generateToken(String login) {
+    public String generateToken(String login, Long userId, UserRole userRole) {
         return Jwts.builder()
                 .subject(login)
+                .claim("userId", userId)
+                .claim("role", userRole.toString())
                 .signWith(secretKey)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+EXPIRATION_TIME))

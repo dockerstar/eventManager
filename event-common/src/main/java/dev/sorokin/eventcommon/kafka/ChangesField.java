@@ -11,6 +11,9 @@ public class ChangesField {
         this.newValue = newValue;
     }
 
+    public ChangesField() {
+    }
+
     public String getField() {
         return field;
     }

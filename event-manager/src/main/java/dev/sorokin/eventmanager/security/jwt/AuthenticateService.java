@@ -28,8 +28,10 @@ public class AuthenticateService {
                         authUserRequest.password()
                 )
         );
-
-        return jwtManagerToken.generateToken(authUserRequest.login());
+        UserEntity user = userRepository.findUserEntityByLogin(authUserRequest.login()).get();
+        return jwtManagerToken.generateToken(authUserRequest.login(),
+                user.getId(),
+                user.getRole());
     }
 
     public UserEntity getAuthenticateUser() {

@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: event-notificator
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/event_manager
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.yaml
+
+jwt:
+  expiration: 900000
+  secret-key: 1fbed4ab0e0c4dd877cf876f04de61f98962ae7d6ff8213fa8384522e96e93d3

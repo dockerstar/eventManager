@@ -209,6 +209,9 @@ public class EventService {
                 register.findAllSubscribersInEvent(eventEntity.getId()),
                 changesFields
         );
+
+        log.info("subsribers {} for event {}", register.findAllSubscribersInEvent(eventEntity.getId()), eventEntity.getId());
+
         CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
         future.whenComplete((result, exception) ->
         {

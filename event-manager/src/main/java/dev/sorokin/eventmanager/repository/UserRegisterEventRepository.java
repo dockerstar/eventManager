@@ -30,9 +30,9 @@ public interface UserRegisterEventRepository extends JpaRepository<UserRegisterE
             @Param("user") UserEntity user);
 
     @Query("""
-        select u.id from EventEntity e 
+        select u.id from UserRegisterEventEntity e 
                 join e.user u
-                        where e.id = :eventId
+                        where e.event.id = :eventId
         """)
     List<Long> findAllSubscribersInEvent(@Param("eventId") Long event);
 }

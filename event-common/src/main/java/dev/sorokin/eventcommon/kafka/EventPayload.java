@@ -2,6 +2,7 @@ package dev.sorokin.eventcommon.kafka;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EventPayload {
@@ -23,6 +24,21 @@ public class EventPayload {
         this.changedById = changedById;
         this.subscribers = subscribers;
         this.changes = changes;
+    }
+
+    public EventPayload() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        EventPayload that = (EventPayload) o;
+        return Objects.equals(messageId, that.messageId) && eventType == that.eventType && Objects.equals(eventId, that.eventId) && Objects.equals(occurredAt, that.occurredAt) && Objects.equals(changes, that.changes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messageId, eventType, eventId, occurredAt, changes);
     }
 
     public UUID getMessageId() {
