@@ -41,7 +41,6 @@ public class EventEntity {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private UserEntity user;
 
-
     public EventEntity() {
     }
 
