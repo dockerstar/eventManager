@@ -29,29 +29,26 @@ public interface EventRepository extends JpaRepository<EventEntity, Long>, JpaSp
 
     List<EventEntity> findAll(Specification<EventEntity> specification);
 
-    @Modifying
+
     @Query(value = """
-            update events
-                    set event_status = :newStatus
+            select * from events
                     where event_status = :curStatus
                                 and date_start <= :dateNow
             """, nativeQuery = true)
-    int updateEventStatusByDateStart(
-            @Param("newStatus") String newStatus,
+    List<EventEntity> updateEventStatusByDateStart(
             @Param("curStatus") String curStatus,
             @Param("dateNow") Timestamp dateTime
     );
 
-    @Modifying
     @Query(value = """
-             update events e
-                    set event_status = :newStatus
+             select * from events
                     where event_status = :curStatus
                         and (date_start + make_interval(mins := duration)) <= :dateEnd
             """, nativeQuery = true)
-    int updateEventStatusByDateEnd(
-            @Param("newStatus") String newStatus,
+    List<EventEntity> updateEventStatusByDateEnd(
             @Param("curStatus") String curStatus,
             @Param("dateEnd") Timestamp dateTime
     );
+
+    List<EventEntity> findEventEntitiesByEventStatus(EventStatus eventStatus);
 }

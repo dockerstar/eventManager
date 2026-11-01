@@ -1,9 +1,6 @@
 package dev.sorokin.eventmanager.controller;
 
-import dev.sorokin.eventmanager.dto.EventCreateRequestDto;
-import dev.sorokin.eventmanager.dto.EventDtoMapper;
-import dev.sorokin.eventmanager.dto.EventResponseDto;
-import dev.sorokin.eventmanager.dto.EventSearchRequestDto;
+import dev.sorokin.eventmanager.dto.*;
 import dev.sorokin.eventmanager.entity.UserEntity;
 import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
 import dev.sorokin.eventmanager.service.EventService;
@@ -68,7 +65,7 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<EventResponseDto> update(
             @PathVariable Long id,
-            @RequestBody @Valid EventCreateRequestDto eventUpdateDto
+            @RequestBody @Valid EventUpdateDto eventUpdateDto
     ) {
         UserEntity userContext = authenticateService.getAuthenticateUser();
         return ResponseEntity.ok().body(
