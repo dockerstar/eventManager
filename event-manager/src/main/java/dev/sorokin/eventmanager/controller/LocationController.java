@@ -4,12 +4,14 @@ import dev.sorokin.eventmanager.dto.LocationDto;
 import dev.sorokin.eventmanager.dto.LocationDtoMapper;
 import dev.sorokin.eventmanager.service.LocationService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/locations")
 public class LocationController {
@@ -53,9 +55,9 @@ public class LocationController {
             @PathVariable Long id,
             @RequestBody @Valid LocationDto locationDto
     ) {
-        return ResponseEntity.ok(
-                locationDtoMapper.toDto(locationService.update(id, locationDto))
-        );
+
+        LocationDto location = locationDtoMapper.toDto(locationService.update(id, locationDto));
+        return ResponseEntity.ok(location);
     }
 
     @DeleteMapping("/{id}")

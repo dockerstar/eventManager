@@ -16,6 +16,9 @@ import dev.sorokin.eventmanager.repository.LocationRepository;
 import dev.sorokin.eventmanager.repository.UserRegisterEventRepository;
 import dev.sorokin.eventmanager.security.jwt.AuthenticateService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -29,6 +32,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@EnableCaching
 @Service
 @Slf4j
 public class EventService {
@@ -36,16 +40,14 @@ public class EventService {
     private final EventDtoMapper eventDtoMapper;
     private final EventEntityMapper eventEntityMapper;
     private final LocationRepository locationRepository;
-    private final AuthenticateService authenticateService;
     private final KafkaTemplate<String, EventPayload> kafkaTemplate;
     private final UserRegisterEventRepository register;
 
-    public EventService(EventRepository eventRepository, EventDtoMapper eventDtoMapper, EventEntityMapper eventEntityMapper, LocationRepository locationRepository, AuthenticateService authenticateService, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register) {
+    public EventService(EventRepository eventRepository, EventDtoMapper eventDtoMapper, EventEntityMapper eventEntityMapper, LocationRepository locationRepository, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register) {
         this.eventRepository = eventRepository;
         this.eventDtoMapper = eventDtoMapper;
         this.eventEntityMapper = eventEntityMapper;
         this.locationRepository = locationRepository;
-        this.authenticateService = authenticateService;
         this.kafkaTemplate = kafkaTemplate;
         this.register = register;
     }
@@ -63,6 +65,10 @@ public class EventService {
         return eventEntityMapper.toDomain(eventEntity);
     }
 
+    @Cacheable(
+            value = "event",
+            key = "#id"
+    )
     public Event findById(Long id) {
         EventEntity eventEntity = eventRepository.findById(id).orElseThrow(
                 () -> new NoSuchFoundException("Событие с id=%s не найдено".formatted(id))
@@ -70,6 +76,10 @@ public class EventService {
         return eventEntityMapper.toDomain(eventEntity);
     }
 
+    @CacheEvict(
+            value = "event",
+            key = "#id"
+    )
     public void delete(Long id, UserEntity user) {
         EventEntity eventEntity = eventRepository.findById(id).orElseThrow(
                 () -> new NoSuchFoundException("Событие с id=%s не найдено".formatted(id))
@@ -112,6 +122,10 @@ public class EventService {
         eventRepository.save(eventEntity);
     }
 
+    @CacheEvict(
+            value = "event",
+            key = "#id"
+    )
     public Event update(Long id, EventUpdateDto eventUpdateDto, UserEntity user) {
         EventEntity eventEntity = eventRepository.findById(id).orElseThrow(
                 () -> new NoSuchFoundException("Событие с id=%s не найдено".formatted(id))

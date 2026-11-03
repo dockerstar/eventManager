@@ -9,11 +9,18 @@ import dev.sorokin.eventmanager.entity.LocationEntityMapper;
 import dev.sorokin.eventmanager.repository.LocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+@EnableCaching
 @Service
 public class LocationService {
     private final LocationRepository locationRepository;
@@ -31,10 +38,14 @@ public class LocationService {
         Location location = locationDtoMapper.toDomain(locationDto);
         LocationEntity locationEntity = locationRepository.save(locationEntityMapper.toEntity(location));
 
+
         log.info("Создана локация с id={}", locationEntity.getId());
         return location;
     }
 
+    @Cacheable(
+            value = "locations"
+    )
     @Transactional(readOnly = true)
     public List<Location> findAll() {
         return locationRepository.findAll().stream()
@@ -42,14 +53,28 @@ public class LocationService {
                 .toList();
     }
 
+
+    @Cacheable(
+            value = "location",
+            key = "#id"
+    )
+    @Transactional(readOnly = true)
     public Location findById(Long id) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
                 new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
 
-        log.info("Был осущетвлен поиск лоакции с id={}", locationEntity.getId());
-        return locationEntityMapper.toDomain(locationEntity);
+        log.info("Был осущетвлен поиск локации с id={} из базы", locationEntity.getId());
+
+        var locationSavedBD = locationEntityMapper.toDomain(locationEntity);
+
+        return locationSavedBD;
     }
 
+    @CacheEvict(
+            value = "location",
+            key = "#id"
+    )
+    @Transactional()
     public Location update(Long id, LocationDto locationDto) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
                 new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
@@ -63,11 +88,15 @@ public class LocationService {
         return locationEntityMapper.toDomain(locationEntity);
     }
 
+    @CacheEvict(
+            value = "location",
+            key = "#id"
+    )
     public void delete(Long id) {
         LocationEntity locationEntity = locationRepository.findById(id).orElseThrow(() ->
                 new NoSuchFoundException("Лоакция с id = %s не найдена".formatted(id)));
         locationRepository.delete(locationEntity);
 
-        log.info("Была удалена локация с id={}", locationEntity.getId());
+        log.info("Была удалена локация с id={} из базы ", locationEntity.getId());
     }
 }

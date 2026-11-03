@@ -1,29 +1,35 @@
 package dev.sorokin.eventnotificator.service;
 
 import dev.sorokin.eventcommon.kafka.EventPayload;
+import dev.sorokin.eventnotificator.conf.RedisCounterUnreadNotif;
 import dev.sorokin.eventnotificator.entity.NotificationEventPayloadsEntity;
 import dev.sorokin.eventnotificator.entity.NotificationPayloadsEntityMapper;
 import dev.sorokin.eventnotificator.entity.NotificationsEntity;
 import dev.sorokin.eventnotificator.model.NotificationEventPayloads;
 import dev.sorokin.eventnotificator.repository.NotifiationsRepository;
 import dev.sorokin.eventnotificator.repository.NotificationPayloadRepository;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EnableCaching
 @Service
 public class NotificationPayloadService {
     private final NotificationPayloadRepository repository;
     private final NotificationPayloadsEntityMapper mapper;
     private final NotifiationsRepository notifiationsRepository;
+    private final RedisCounterUnreadNotif redisCounterUnreadNotif;
 
-    public NotificationPayloadService(NotificationPayloadRepository repository, NotificationPayloadsEntityMapper mapper, NotifiationsRepository notifiationsRepository) {
+    public NotificationPayloadService(NotificationPayloadRepository repository, NotificationPayloadsEntityMapper mapper, NotifiationsRepository notifiationsRepository, RedisCounterUnreadNotif redisCounterUnreadNotif) {
         this.repository = repository;
         this.mapper = mapper;
         this.notifiationsRepository = notifiationsRepository;
+        this.redisCounterUnreadNotif = redisCounterUnreadNotif;
     }
+
 
     @Transactional
     public NotificationEventPayloads save(EventPayload eventPayload) {
@@ -53,7 +59,9 @@ public class NotificationPayloadService {
                             eventPayloadsEntityCreated
                             )
             );
+            redisCounterUnreadNotif.addUnreadNotifForUser(subsribe);
         });
+
 
         return mapper.toDomain(eventPayloadsEntityCreated);
     }

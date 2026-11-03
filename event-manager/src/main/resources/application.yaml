@@ -28,6 +28,12 @@ spring:
       properties:
         enable:
           idempotence: true
+  data:
+    redis:
+      port: ${SPRING_REDIS_PORT:6379}
+      host: ${SPRING_REDIS_HOST:localhost}
+  cache:
+    type: redis
 
 logging:
   level:

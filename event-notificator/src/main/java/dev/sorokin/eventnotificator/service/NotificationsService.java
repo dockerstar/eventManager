@@ -1,5 +1,6 @@
 package dev.sorokin.eventnotificator.service;
 
+import dev.sorokin.eventnotificator.conf.RedisCounterUnreadNotif;
 import dev.sorokin.eventnotificator.entity.NotificationsEntity;
 import dev.sorokin.eventnotificator.entity.NotificationsEntityMapper;
 import dev.sorokin.eventnotificator.model.Notifications;
@@ -14,10 +15,12 @@ import java.util.List;
 public class NotificationsService {
     private final NotifiationsRepository notifiationsRepository;
     private final NotificationsEntityMapper notificationsEntityMapper;
+    private final RedisCounterUnreadNotif redisCounterUnreadNotif;
 
-    public NotificationsService(NotifiationsRepository repository, NotificationsEntityMapper notificationsEntityMapper) {
+    public NotificationsService(NotifiationsRepository repository, NotificationsEntityMapper notificationsEntityMapper, RedisCounterUnreadNotif redisCounterUnreadNotif) {
         this.notifiationsRepository = repository;
         this.notificationsEntityMapper = notificationsEntityMapper;
+        this.redisCounterUnreadNotif = redisCounterUnreadNotif;
     }
 
     @Transactional(readOnly = true)
@@ -40,6 +43,10 @@ public class NotificationsService {
                         notificationsEntity.setRead(true);
                         notificationsEntity.setReadAt(LocalDateTime.now());});
         List<NotificationsEntity> notificationsEntityListSaved = notifiationsRepository.saveAll(notificationsEntityList);
+
+        Long countCurrentUnreadNotif = (long) notifiationsRepository.findNotificationsEntitiesByUserIdAndIsRead(userId, false).size();
+
+        redisCounterUnreadNotif.updateUnreadNotifForUser(userId, countCurrentUnreadNotif);
 
         return notificationsEntityListSaved.stream()
                 .map(notificationsEntityMapper::toDomain)

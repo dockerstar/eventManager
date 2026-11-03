@@ -9,7 +9,10 @@ import dev.sorokin.eventmanager.repository.EventRepository;
 import dev.sorokin.eventmanager.repository.UserRegisterEventRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@EnableCaching
 @Configuration
 @EnableScheduling
 @Slf4j
@@ -30,25 +34,28 @@ public class ScheduledConf {
     private final EventRepository eventRepository;
     private final KafkaTemplate<String, EventPayload> kafkaTemplate;
     private final UserRegisterEventRepository register;
+    private final StringRedisTemplate redisTemplate;
 
-    public ScheduledConf(EventRepository eventRepository, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register) {
+    public ScheduledConf(EventRepository eventRepository, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register, StringRedisTemplate redisTemplate) {
         this.eventRepository = eventRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.register = register;
+        this.redisTemplate = redisTemplate;
     }
 
     @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void scheduledChangeStatusForEvents(){
-        log.info("Scheduled for change eventStatus start");
-
         List<EventEntity> eventsChangeStatusForStarted = eventRepository.updateEventStatusByDateStart(
                 EventStatus.WAIT_START.toString(),
                 Timestamp.from(Instant.now())
         );
 
         if (!eventsChangeStatusForStarted.isEmpty()) {
-            eventsChangeStatusForStarted.forEach(event -> event.setEventStatus(EventStatus.STARTED));
+            eventsChangeStatusForStarted.forEach(event -> {
+                    event.setEventStatus(EventStatus.STARTED);
+                    redisTemplate.opsForValue().getAndDelete("event:"+event.getId());
+            });
             eventRepository.saveAll(eventsChangeStatusForStarted);
             eventsChangeStatusForStarted.forEach(event -> {
                 EventPayload eventPayload = new EventPayload(
@@ -75,15 +82,16 @@ public class ScheduledConf {
             });
         }
 
-        log.info("Changed status for STARTED count = {}", eventsChangeStatusForStarted.size());
-
         List<EventEntity> eventsChangeStatusForFinished = eventRepository.updateEventStatusByDateEnd(
                 EventStatus.STARTED.toString(),
                 Timestamp.from(Instant.now())
         );
 
         if (!eventsChangeStatusForFinished.isEmpty()) {
-            eventsChangeStatusForFinished.forEach(event -> event.setEventStatus(EventStatus.FINISHED));
+            eventsChangeStatusForFinished.forEach(event -> {
+                event.setEventStatus(EventStatus.FINISHED);
+                redisTemplate.opsForValue().getAndDelete("event:"+event.getId());
+            });
             eventRepository.saveAll(eventsChangeStatusForFinished);
             eventsChangeStatusForFinished.forEach(event -> {
                 EventPayload eventPayload = new EventPayload(
@@ -109,8 +117,6 @@ public class ScheduledConf {
                 });
             });
         }
-        log.info("Changed status for FINISHED count = {}", eventsChangeStatusForFinished.size());
-        log.info("Scheduled for change eventStatus end");
     }
 
 
