@@ -8,15 +8,17 @@ import dev.sorokin.eventnotificator.entity.NotificationsEntity;
 import dev.sorokin.eventnotificator.model.NotificationEventPayloads;
 import dev.sorokin.eventnotificator.repository.NotifiationsRepository;
 import dev.sorokin.eventnotificator.repository.NotificationPayloadRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@EnableCaching
 @Service
+@Slf4j
 public class NotificationPayloadService {
     private final NotificationPayloadRepository repository;
     private final NotificationPayloadsEntityMapper mapper;
@@ -37,29 +39,30 @@ public class NotificationPayloadService {
                 .findNotificationEventPayloadsEntityInMessageIdAndOccurredAt(
                         eventPayload.getMessageId(),
                         eventPayload.getOccurredAt());
-        if (notificationEventPayloads!=null) {
+        if (notificationEventPayloads != null) {
             throw new IllegalArgumentException("Payloads been received: %s".formatted(notificationEventPayloads.getMessageId()));
         }
 
         NotificationEventPayloads eventPayloadsDomain = mapper.toDomain(eventPayload);
         NotificationEventPayloadsEntity eventPayloadsEntity = mapper.toEntity(eventPayloadsDomain);
 
-        NotificationEventPayloadsEntity eventPayloadsEntityCreated =  repository.save(eventPayloadsEntity);
+        NotificationEventPayloadsEntity eventPayloadsEntityCreated = repository.save(eventPayloadsEntity);
 
         List<Long> subscribers = eventPayload.getSubscribers();
 
-        subscribers.forEach(subsribe -> {
+
+        subscribers.forEach(subsсribe -> {
             notifiationsRepository.save(
                     new NotificationsEntity(
                             null,
-                            subsribe,
+                            subsсribe,
                             false,
                             LocalDateTime.now(),
                             null,
                             eventPayloadsEntityCreated
-                            )
+                    )
             );
-            redisCounterUnreadNotif.addUnreadNotifForUser(subsribe);
+            redisCounterUnreadNotif.addUnreadNotifForUser(subsсribe);
         });
 
 

@@ -24,6 +24,8 @@ spring:
     redis:
       host: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
+      connect-timeout: 2s
+      timeout: 2s
 
   cache:
     type: redis
