@@ -6,7 +6,6 @@ import dev.sorokin.eventnotificator.entity.NotificationsEntityMapper;
 import dev.sorokin.eventnotificator.model.Notifications;
 import dev.sorokin.eventnotificator.repository.NotifiationsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

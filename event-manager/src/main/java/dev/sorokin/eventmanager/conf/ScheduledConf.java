@@ -69,8 +69,7 @@ public class ScheduledConf {
                         List.of(new ChangesField("status", EventStatus.WAIT_START.toString(), EventStatus.STARTED.toString()))
                 );
 
-                CompletableFuture<SendResult<String, EventPayload>> future =
-                        kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
+                CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
                 future.whenComplete((result, exception) ->
                 {
                     if (exception != null) {
@@ -105,8 +104,7 @@ public class ScheduledConf {
                         List.of(new ChangesField("status", EventStatus.STARTED.toString(), EventStatus.FINISHED.toString()))
                 );
 
-                CompletableFuture<SendResult<String, EventPayload>> future =
-                        kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
+                CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
                 future.whenComplete((result, exception) ->
                 {
                     if (exception != null) {

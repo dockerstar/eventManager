@@ -9,8 +9,6 @@ import dev.sorokin.eventnotificator.model.NotificationEventPayloads;
 import dev.sorokin.eventnotificator.repository.NotifiationsRepository;
 import dev.sorokin.eventnotificator.repository.NotificationPayloadRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,12 +1,10 @@
 package dev.sorokin.eventmanager.conf;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Objects;
 
 @Slf4j
 @Component
