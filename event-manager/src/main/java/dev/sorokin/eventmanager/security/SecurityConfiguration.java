@@ -59,8 +59,13 @@ public class SecurityConfiguration {
                         .hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/locations/**")
                         .hasAuthority("ADMIN")
-                        .requestMatchers("/swagger-ui", "/swagger-ui/**", "/event-manager-openapi.yaml")
-                        .permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/static/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "api/events")
                         .hasAuthority("USER")
                         .requestMatchers(HttpMethod.GET, "api/events/**")
