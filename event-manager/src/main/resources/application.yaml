@@ -54,3 +54,7 @@ jwt:
 topic:
   name:
     event: "event-changed-event-topic"
+
+redis:
+  field:
+    ttl: 60

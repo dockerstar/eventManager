@@ -45,19 +45,21 @@ public class ScheduledConf {
 
     @Scheduled(cron = "0 * * * * *")
     @Transactional
-    public void scheduledChangeStatusForEvents(){
+    public void scheduledChangeStatusForEvents() {
         List<EventEntity> eventsChangeStatusForStarted = eventRepository.updateEventStatusByDateStart(
                 EventStatus.WAIT_START.toString(),
                 Timestamp.from(Instant.now())
         );
 
         if (!eventsChangeStatusForStarted.isEmpty()) {
-            eventsChangeStatusForStarted.forEach(event -> {
-                    event.setEventStatus(EventStatus.STARTED);
-                    redisTemplate.opsForValue().getAndDelete("event:"+event.getId());
-            });
+            eventsChangeStatusForStarted.forEach(event -> event.setEventStatus(EventStatus.STARTED));
             eventRepository.saveAll(eventsChangeStatusForStarted);
             eventsChangeStatusForStarted.forEach(event -> {
+                try {
+                    redisTemplate.opsForValue().getAndDelete("event:" + event.getId());
+                } catch (RuntimeException ex) {
+                    log.error("Не удалось инвалидировать кеш события, id={}: {}", event.getId(), ex.getMessage());
+                }
                 EventPayload eventPayload = new EventPayload(
                         UUID.randomUUID(),
                         EventType.UPDATED,
@@ -87,12 +89,14 @@ public class ScheduledConf {
         );
 
         if (!eventsChangeStatusForFinished.isEmpty()) {
-            eventsChangeStatusForFinished.forEach(event -> {
-                event.setEventStatus(EventStatus.FINISHED);
-                redisTemplate.opsForValue().getAndDelete("event:"+event.getId());
-            });
+            eventsChangeStatusForFinished.forEach(event -> event.setEventStatus(EventStatus.FINISHED));
             eventRepository.saveAll(eventsChangeStatusForFinished);
             eventsChangeStatusForFinished.forEach(event -> {
+                try {
+                    redisTemplate.opsForValue().getAndDelete("event:" + event.getId());
+                } catch (RuntimeException ex) {
+                    log.error("Не удалось инвалидировать кеш события, id={}: {}", event.getId(), ex.getMessage());
+                }
                 EventPayload eventPayload = new EventPayload(
                         UUID.randomUUID(),
                         EventType.UPDATED,

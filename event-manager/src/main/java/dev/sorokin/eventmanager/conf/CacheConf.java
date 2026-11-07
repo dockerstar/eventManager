@@ -3,6 +3,7 @@ package dev.sorokin.eventmanager.conf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sorokin.eventmanager.exception.CustomCacheException;
 import dev.sorokin.eventmanager.model.Location;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -24,16 +25,19 @@ import java.time.Duration;
 @Configuration
 public class CacheConf implements CachingConfigurer {
 
+    @Value("${redis.field.ttl}")
+    private Integer REDIS_FIELD_TTL;
+
     @Bean
     public CacheManager cacheManager(
             RedisConnectionFactory redisConnectionFactory
     ) {
-        var serializerEvent = new GenericJackson2JsonRedisSerializer();
+        var genericSerializer = new GenericJackson2JsonRedisSerializer();
 
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializerEvent))
-                .entryTtl(Duration.ofMinutes(1));
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(genericSerializer))
+                .entryTtl(Duration.ofSeconds(REDIS_FIELD_TTL));
 
 
 

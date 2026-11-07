@@ -2,6 +2,7 @@ package dev.sorokin.eventnotificator.conf;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,8 +16,11 @@ public class RedisCounterUnreadNotif {
 
     private final StringRedisTemplate redisTemplate;
 
+    @Value("${redis.key.unread-notif}")
+    private String REDIS_KEY_UNREAD_NOTIF;
+
     public void addUnreadNotifForUser(Long userId) {
-        String key = "notif:unread:"+userId;
+        String key = REDIS_KEY_UNREAD_NOTIF+userId;
 
         try {
             redisTemplate.opsForValue().increment(key);
@@ -28,7 +32,7 @@ public class RedisCounterUnreadNotif {
     }
 
     public void updateUnreadNotifForUser(Long userId, Long count) {
-        String key = "notif:unread:"+userId;
+        String key = REDIS_KEY_UNREAD_NOTIF+userId;
 
         try {
             redisTemplate.opsForValue().set(key, String.valueOf(count));
