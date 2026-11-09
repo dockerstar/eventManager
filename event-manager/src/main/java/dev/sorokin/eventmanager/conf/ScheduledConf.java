@@ -9,7 +9,10 @@ import dev.sorokin.eventmanager.repository.EventRepository;
 import dev.sorokin.eventmanager.repository.UserRegisterEventRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@EnableCaching
 @Configuration
 @EnableScheduling
 @Slf4j
@@ -30,18 +34,18 @@ public class ScheduledConf {
     private final EventRepository eventRepository;
     private final KafkaTemplate<String, EventPayload> kafkaTemplate;
     private final UserRegisterEventRepository register;
+    private final StringRedisTemplate redisTemplate;
 
-    public ScheduledConf(EventRepository eventRepository, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register) {
+    public ScheduledConf(EventRepository eventRepository, KafkaTemplate<String, EventPayload> kafkaTemplate, UserRegisterEventRepository register, StringRedisTemplate redisTemplate) {
         this.eventRepository = eventRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.register = register;
+        this.redisTemplate = redisTemplate;
     }
 
     @Scheduled(cron = "0 * * * * *")
     @Transactional
-    public void scheduledChangeStatusForEvents(){
-        log.info("Scheduled for change eventStatus start");
-
+    public void scheduledChangeStatusForEvents() {
         List<EventEntity> eventsChangeStatusForStarted = eventRepository.updateEventStatusByDateStart(
                 EventStatus.WAIT_START.toString(),
                 Timestamp.from(Instant.now())
@@ -51,6 +55,11 @@ public class ScheduledConf {
             eventsChangeStatusForStarted.forEach(event -> event.setEventStatus(EventStatus.STARTED));
             eventRepository.saveAll(eventsChangeStatusForStarted);
             eventsChangeStatusForStarted.forEach(event -> {
+                try {
+                    redisTemplate.opsForValue().getAndDelete("event:" + event.getId());
+                } catch (RuntimeException ex) {
+                    log.error("Не удалось инвалидировать кеш события, id={}: {}", event.getId(), ex.getMessage());
+                }
                 EventPayload eventPayload = new EventPayload(
                         UUID.randomUUID(),
                         EventType.UPDATED,
@@ -62,8 +71,7 @@ public class ScheduledConf {
                         List.of(new ChangesField("status", EventStatus.WAIT_START.toString(), EventStatus.STARTED.toString()))
                 );
 
-                CompletableFuture<SendResult<String, EventPayload>> future =
-                        kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
+                CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
                 future.whenComplete((result, exception) ->
                 {
                     if (exception != null) {
@@ -75,8 +83,6 @@ public class ScheduledConf {
             });
         }
 
-        log.info("Changed status for STARTED count = {}", eventsChangeStatusForStarted.size());
-
         List<EventEntity> eventsChangeStatusForFinished = eventRepository.updateEventStatusByDateEnd(
                 EventStatus.STARTED.toString(),
                 Timestamp.from(Instant.now())
@@ -86,6 +92,11 @@ public class ScheduledConf {
             eventsChangeStatusForFinished.forEach(event -> event.setEventStatus(EventStatus.FINISHED));
             eventRepository.saveAll(eventsChangeStatusForFinished);
             eventsChangeStatusForFinished.forEach(event -> {
+                try {
+                    redisTemplate.opsForValue().getAndDelete("event:" + event.getId());
+                } catch (RuntimeException ex) {
+                    log.error("Не удалось инвалидировать кеш события, id={}: {}", event.getId(), ex.getMessage());
+                }
                 EventPayload eventPayload = new EventPayload(
                         UUID.randomUUID(),
                         EventType.UPDATED,
@@ -97,8 +108,7 @@ public class ScheduledConf {
                         List.of(new ChangesField("status", EventStatus.STARTED.toString(), EventStatus.FINISHED.toString()))
                 );
 
-                CompletableFuture<SendResult<String, EventPayload>> future =
-                        kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
+                CompletableFuture<SendResult<String, EventPayload>> future = kafkaTemplate.send("event-changed-event-topic", eventPayload.getMessageId().toString(), eventPayload);
                 future.whenComplete((result, exception) ->
                 {
                     if (exception != null) {
@@ -109,8 +119,6 @@ public class ScheduledConf {
                 });
             });
         }
-        log.info("Changed status for FINISHED count = {}", eventsChangeStatusForFinished.size());
-        log.info("Scheduled for change eventStatus end");
     }
 
 

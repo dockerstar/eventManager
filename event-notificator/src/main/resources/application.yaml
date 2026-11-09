@@ -20,6 +20,25 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.yaml
 
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      connect-timeout: 2s
+      timeout: 2s
+
+  cache:
+    type: redis
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+    url: /event-notificator-openapi.yaml
+
 jwt:
   expiration: 900000
   secret-key: 1fbed4ab0e0c4dd877cf876f04de61f98962ae7d6ff8213fa8384522e96e93d3
+
+redis:
+    key:
+      unread-notif: "notif:unread:"

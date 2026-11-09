@@ -28,6 +28,14 @@ spring:
       properties:
         enable:
           idempotence: true
+  data:
+    redis:
+      port: ${SPRING_REDIS_PORT:6379}
+      host: ${SPRING_REDIS_HOST:localhost}
+      connect-timeout: 2s
+      timeout: 2s
+  cache:
+    type: redis
 
 logging:
   level:
@@ -42,3 +50,11 @@ springdoc:
 jwt:
   expiration: 900000
   secret-key: 1fbed4ab0e0c4dd877cf876f04de61f98962ae7d6ff8213fa8384522e96e93d3
+
+topic:
+  name:
+    event: "event-changed-event-topic"
+
+redis:
+  field:
+    ttl: 60
